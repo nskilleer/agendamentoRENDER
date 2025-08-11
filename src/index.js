@@ -5,7 +5,7 @@ const cors = require('cors');
 const { connectDB } = require('./config/db');
 
 const authRoutes = require('./routes/auth');
-const appointmentRoutes = require('./routes/appointments');
+const appointmentRoutes = require('./models/Appointment');
 
 const app = express();
 const PORT = process.env.PORT || 4000;

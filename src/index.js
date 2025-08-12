@@ -1,35 +1,30 @@
-require('dotenv').config();
+// server/src/index.js
+require('dotenv').config(); // Carrega as variáveis de ambiente do arquivo .env
 const express = require('express');
-const helmet = require('helmet');
+const mongoose = require('mongoose');
 const cors = require('cors');
-const { connectDB } = require('./config/db');
 
 const authRoutes = require('./routes/auth');
-const appointmentRoutes = require('./models/Appointment');
+const appointmentRoutes = require('./routes/appointments');
 
 const app = express();
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 3001; // Usa a porta do ambiente (Render) ou 3001 localmente
+const MONGO_URI = process.env.MONGO_URI;
 
-connectDB();
+// Conecta ao MongoDB
+mongoose.connect(MONGO_URI)
+    .then(() => console.log('Conectado ao MongoDB!'))
+    .catch(err => console.error('Erro ao conectar ao MongoDB:', err));
 
-app.use(helmet());
-app.use(express.json());
+// Middlewares
+app.use(cors()); // Permite requisições de diferentes origens
+app.use(express.json()); // Habilita o Express a ler JSON no corpo das requisições
 
-const corsOptions = {
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
-    credentials: true
-};
-app.use(cors(corsOptions));
+// Rotas da API
+app.use('/api/auth', authRoutes); // Rotas de autenticação
+app.use('/api/appointments', appointmentRoutes); // Rotas de agendamentos, serviços, etc.
 
-// rotas
-app.use('/api/auth', authRoutes);
-app.use('/api/appointments', appointmentRoutes);
-
-app.get('/', (req, res) => res.json({ ok: true, env: process.env.NODE_ENV }));
-
-app.use((err, req, res, next) => {
-    console.error(err);
-    res.status(err.status || 500).json({ error: err.message || 'Internal Server Error' });
+// Inicia o servidor
+app.listen(PORT, () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
 });
-
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -1,36 +1,45 @@
+// server/src/routes/appointments.js
 const express = require('express');
-const Appointment = require('../models/Appointment');
 const auth = require('../middlewares/authMiddleware');
+const serviceController = require('../controllers/serviceController');
+const scheduleController = require('../controllers/scheduleController');
+const appointmentController = require('../controllers/appointmentController');
+const User = require('../models/User');
 
 const router = express.Router();
 
-router.use(auth);
-
-router.get('/', async (req, res, next) => {
+// Rotas públicas (não precisam de autenticação)
+// ----------------------------------------------------------------------
+// Rota para buscar todos os profissionais
+router.get('/public/professionals', async (req, res, next) => {
     try {
-        const list = await Appointment.find({ user: req.user._id, canceled: false }).sort('date');
-        res.json(list);
+        const professionals = await User.find({ role: 'pro' }).select('-password');
+        res.json(professionals);
     } catch (err) { next(err); }
 });
 
-router.post('/', async (req, res, next) => {
-    try {
-        const { title, date, notes } = req.body;
-        const ap = await Appointment.create({ title, date, notes, user: req.user._id });
-        res.status(201).json(ap);
-    } catch (err) { next(err); }
-});
+// Rota para buscar serviços de um profissional específico
+router.get('/public/services/:professionalId', serviceController.getServicesForClient);
 
-router.patch('/:id/cancel', async (req, res, next) => {
-    try {
-        const ap = await Appointment.findOneAndUpdate(
-            { _id: req.params.id, user: req.user._id },
-            { canceled: true },
-            { new: true }
-        );
-        if (!ap) return res.status(404).json({ error: 'Agendamento não encontrado' });
-        res.json(ap);
-    } catch (err) { next(err); }
-});
+// Rota para buscar horários disponíveis de um profissional em uma data específica
+router.get('/public/available-hours', scheduleController.getAvailableHours);
+
+// Rotas privadas (precisam de autenticação)
+// ----------------------------------------------------------------------
+router.use(auth); // Aplica o middleware de autenticação para todas as rotas abaixo
+
+// Rotas para Agendamentos
+router.get('/', appointmentController.getAppointments);
+router.post('/', appointmentController.createAppointment);
+router.patch('/:id/cancel', appointmentController.cancelAppointment);
+
+// Rotas para Serviços do Profissional
+router.post('/services', serviceController.addService);
+router.get('/services', serviceController.getServicesByProfessional);
+
+// Rotas para Horários do Profissional
+router.post('/schedules', scheduleController.addSchedule);
+router.get('/schedules', scheduleController.getSchedulesByProfessional);
+
 
 module.exports = router;

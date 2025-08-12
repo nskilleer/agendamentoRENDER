@@ -1,74 +1,64 @@
-// client/src/pages/Login.js
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
-import { setAuthToken } from '../services/api';
+import { useNavigate, Link } from 'react-router-dom';
+import api, { setAuthToken } from '../services/api';
 
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    const handleLogin = async (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
-
         try {
             const response = await api.post('/auth/login', { email, password });
+            const { token, user } = response.data;
 
-            // Salva o token JWT e os dados do usuário no localStorage
-            localStorage.setItem('token', response.data.token);
-            localStorage.setItem('user', JSON.stringify(response.data.user));
+            localStorage.setItem('token', token);
+            localStorage.setItem('user', JSON.stringify(user));
+            setAuthToken(token);
 
-            // Configura o token para todas as futuras requisições do axios
-            setAuthToken(response.data.token);
-
-            // Redireciona para o dashboard
-            navigate('/dashboard');
-        } catch (err) {
-            // Exibe a mensagem de erro do backend
-            setError(err.response?.data?.error || 'Erro ao fazer login. Tente novamente.');
-            console.error(err);
+            if (user.role === 'pro') {
+                navigate('/dashboard');
+            } else {
+                navigate('/client-dashboard');
+            }
+        } catch (error) {
+            console.error('Erro ao fazer login:', error);
+            alert('Credenciais inválidas.');
         }
     };
 
     return (
         <div className="container mt-5">
-            <div className="row justify-content-center">
-                <div className="col-md-6">
-                    <div className="card">
-                        <div className="card-header">Login</div>
-                        <div className="card-body">
-                            {error && <div className="alert alert-danger">{error}</div>}
-                            <form onSubmit={handleLogin}>
-                                <div className="mb-3">
-                                    <label className="form-label">Email</label>
-                                    <input
-                                        type="email"
-                                        className="form-control"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        required
-                                    />
-                                </div>
-                                <div className="mb-3">
-                                    <label className="form-label">Senha</label>
-                                    <input
-                                        type="password"
-                                        className="form-control"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        required
-                                    />
-                                </div>
-                                <button type="submit" className="btn btn-primary w-100">Entrar</button>
-                            </form>
+            <div className="card mx-auto" style={{ maxWidth: '400px' }}>
+                <div className="card-body">
+                    <h2 className="card-title text-center mb-4">Login</h2>
+                    <form onSubmit={handleSubmit}>
+                        <div className="mb-3">
+                            <label className="form-label">Email</label>
+                            <input
+                                type="email"
+                                className="form-control"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                            />
                         </div>
-                        <div className="card-footer text-center">
-                            <p>Não tem uma conta? <a href="/register">Registre-se aqui</a></p>
+                        <div className="mb-3">
+                            <label className="form-label">Senha</label>
+                            <input
+                                type="password"
+                                className="form-control"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                            />
                         </div>
-                    </div>
+                        <button type="submit" className="btn btn-primary w-100">Entrar</button>
+                    </form>
+                    <p className="text-center mt-3">
+                        Não tem uma conta? <Link to="/register">Crie uma aqui.</Link>
+                    </p>
                 </div>
             </div>
         </div>

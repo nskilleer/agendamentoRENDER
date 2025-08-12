@@ -1,11 +1,14 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import App from '/App';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter as Router } from 'react-router-dom';
+import App from './App';
+import 'bootstrap/dist/css/bootstrap.min.css'; // Importa o CSS do Bootstrap
 
-createRoot(document.getElementById('root')).render(
-    <BrowserRouter>
-        <App />
-    </BrowserRouter>
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+    <React.StrictMode>
+        <Router>
+            <App />
+        </Router>
+    </React.StrictMode>
 );

@@ -86,7 +86,7 @@ export default function Dashboard() {
         try {
             await api.patch(`/appointments/${id}/cancel`);
             alert('Agendamento cancelado com sucesso!');
-            fetchAppointments(); // Atualiza a lista de agendamentos
+            fetchAppointments();
         } catch (error) {
             console.error('Erro ao cancelar agendamento:', error);
             alert('Erro ao cancelar agendamento.');
@@ -110,7 +110,6 @@ export default function Dashboard() {
                 </div>
             </div>
 
-            {/* Modal de Configuração */}
             {showConfigModal && (
                 <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
                     <div className="modal-dialog modal-xl">
@@ -121,7 +120,6 @@ export default function Dashboard() {
                             </div>
                             <div className="modal-body">
                                 <div className="row">
-                                    {/* Formulário de Horários */}
                                     <div className="col-md-6">
                                         <h4>Horários de Funcionamento</h4>
                                         <form onSubmit={handleScheduleSubmit}>
@@ -153,7 +151,6 @@ export default function Dashboard() {
                                         </ul>
                                     </div>
 
-                                    {/* Formulário de Serviços */}
                                     <div className="col-md-6">
                                         <h4>Serviços Oferecidos</h4>
                                         <form onSubmit={handleServiceSubmit}>
@@ -183,7 +180,6 @@ export default function Dashboard() {
                 </div>
             )}
 
-            {/* Modal da Agenda */}
             {showAgendaModal && (
                 <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
                     <div className="modal-dialog modal-lg">

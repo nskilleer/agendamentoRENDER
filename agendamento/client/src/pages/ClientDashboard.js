@@ -1,7 +1,7 @@
-// client/src/pages/ClientDashboard.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api, { setAuthToken } from '../services/api';
+import AppointmentForm from '../components/AppointmentForm'; // Importa o novo componente
 
 export default function ClientDashboard() {
     const [user, setUser] = useState(null);
@@ -14,11 +14,9 @@ export default function ClientDashboard() {
     const [selectedDate, setSelectedDate] = useState('');
     const [selectedHour, setSelectedHour] = useState('');
     const [showAppointmentsModal, setShowAppointmentsModal] = useState(false);
-    const [bookingForm, setBookingForm] = useState({ title: '', notes: '' });
 
     const navigate = useNavigate();
 
-    // Efeito para verificar a autenticação e carregar dados iniciais
     useEffect(() => {
         const token = localStorage.getItem('token');
         const userData = JSON.parse(localStorage.getItem('user'));
@@ -71,8 +69,7 @@ export default function ClientDashboard() {
         }
     };
 
-    const handleBookingSubmit = async (e) => {
-        e.preventDefault();
+    const handleBookingSubmit = async (title, notes) => {
         if (!selectedService || !selectedProfessional || !selectedHour) {
             alert('Por favor, selecione um serviço, profissional e horário.');
             return;
@@ -81,22 +78,20 @@ export default function ClientDashboard() {
             const appointmentDate = new Date(selectedHour);
 
             const newAppointment = {
-                title: bookingForm.title,
+                title: title,
                 date: appointmentDate.toISOString(),
-                notes: bookingForm.notes,
+                notes: notes,
                 professionalId: selectedProfessional._id,
                 serviceId: selectedService._id
             };
             await api.post('/appointments', newAppointment);
             alert('Agendamento criado com sucesso!');
 
-            // Limpa os estados para um novo agendamento
             setSelectedService(null);
             setSelectedProfessional(null);
             setSelectedDate('');
             setSelectedHour('');
             setAvailableHours([]);
-            setBookingForm({ title: '', notes: '' });
             fetchMyAppointments();
         } catch (error) {
             console.error('Erro ao agendar:', error);
@@ -134,7 +129,6 @@ export default function ClientDashboard() {
                 {user && <h1>Bem-vindo, {user.name}!</h1>}
                 <p className="lead">Selecione um serviço e um horário para agendar.</p>
 
-                {/* Passo 1: Selecionar o Serviço */}
                 <div className="card mb-4">
                     <div className="card-header">1. Selecione um Serviço</div>
                     <div className="card-body">
@@ -156,7 +150,6 @@ export default function ClientDashboard() {
                     </div>
                 </div>
 
-                {/* Passo 2: Selecionar Profissional (simplificado para um fluxo mais direto) */}
                 {selectedService && (
                     <div className="card mb-4">
                         <div className="card-header">2. Selecione um Profissional</div>
@@ -180,65 +173,19 @@ export default function ClientDashboard() {
                     </div>
                 )}
 
-                {/* Passo 3: Agendar Horário */}
                 {selectedProfessional && (
-                    <div className="card">
-                        <div className="card-header">3. Agendar Horário</div>
-                        <div className="card-body">
-                            <form onSubmit={handleBookingSubmit}>
-                                <div className="mb-3">
-                                    <label className="form-label">Data</label>
-                                    <input
-                                        type="date"
-                                        className="form-control"
-                                        value={selectedDate}
-                                        onChange={handleDateChange}
-                                        required
-                                    />
-                                </div>
-                                {availableHours.length > 0 && (
-                                    <div className="mb-3">
-                                        <label className="form-label">Horários Disponíveis</label>
-                                        <div className="d-flex flex-wrap gap-2">
-                                            {availableHours.map(hour => (
-                                                <button
-                                                    key={hour.timestamp}
-                                                    type="button"
-                                                    className={`btn ${selectedHour === hour.timestamp ? 'btn-primary' : 'btn-outline-secondary'}`}
-                                                    onClick={() => setSelectedHour(hour.timestamp)}
-                                                >
-                                                    {hour.time}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                                <div className="mb-3">
-                                    <label className="form-label">Título do Agendamento</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        value={bookingForm.title}
-                                        onChange={(e) => setBookingForm({ ...bookingForm, title: e.target.value })}
-                                        required
-                                    />
-                                </div>
-                                <div className="mb-3">
-                                    <label className="form-label">Notas</label>
-                                    <textarea
-                                        className="form-control"
-                                        value={bookingForm.notes}
-                                        onChange={(e) => setBookingForm({ ...bookingForm, notes: e.target.value })}
-                                    ></textarea>
-                                </div>
-                                <button type="submit" className="btn btn-primary w-100" disabled={!selectedHour}>Confirmar Agendamento</button>
-                            </form>
-                        </div>
-                    </div>
+                    <AppointmentForm
+                        selectedService={selectedService}
+                        selectedProfessional={selectedProfessional}
+                        selectedHour={selectedHour}
+                        availableHours={availableHours}
+                        onBookingSubmit={handleBookingSubmit}
+                        onDateChange={handleDateChange}
+                        onHourSelect={setSelectedHour}
+                    />
                 )}
             </div>
 
-            {/* Modal de Meus Agendamentos */}
             {showAppointmentsModal && (
                 <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
                     <div className="modal-dialog modal-lg">

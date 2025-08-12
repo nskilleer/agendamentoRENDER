@@ -1,16 +1,19 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000/api';
-
+// A URL base da API. Use a URL do Render em produção e 'http://localhost:3001/api' localmente.
+// Renderizará um ambiente automaticamente e, se o Renderizar definir uma variável de ambiente `API_URL`,
+// o código pode ser mais flexível.
 const api = axios.create({
-    baseURL: API_URL,
-    headers: { 'Content-Type': 'application/json' }
+    baseURL: 'http://localhost:3001/api', // Altere para a URL do seu servidor Render
 });
 
-export function setAuthToken(token) {
-    if (token) api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    else delete api.defaults.headers.common['Authorization'];
-}
+// Função para configurar o token de autenticação
+export const setAuthToken = (token) => {
+    if (token) {
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    } else {
+        delete api.defaults.headers.common['Authorization'];
+    }
+};
 
 export default api;
-

@@ -1,15 +1,17 @@
+// client/src/services/api.js
 import axios from 'axios';
 
-// URL base da sua API. Altere para a URL do seu servidor Render quando implantar.
+// Cria uma instância do Axios apontando para o seu backend
 const api = axios.create({
-    baseURL: 'http://localhost:3001/api',
+    baseURL: 'http://localhost:4000/api',
 });
 
+// Adiciona o token de autenticação em todas as requisições
 export const setAuthToken = (token) => {
     if (token) {
-        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        api.defaults.headers.common['x-auth-token'] = token;
     } else {
-        delete api.defaults.headers.common['Authorization'];
+        delete api.defaults.headers.common['x-auth-token'];
     }
 };
 

@@ -6,18 +6,17 @@ export default function Register() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [role, setRole] = useState('user');
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await api.post('/auth/register', { name, email, password, role });
-            alert('Registro realizado com sucesso! Faça login para continuar.');
+            await api.post('/auth/register', { name, email, password });
+            alert('Registro de profissional realizado com sucesso!');
             navigate('/login');
         } catch (error) {
             console.error('Erro ao registrar:', error);
-            alert('Erro ao registrar. Email já pode estar em uso.');
+            alert('Erro ao registrar. O email já pode estar em uso.');
         }
     };
 
@@ -25,10 +24,10 @@ export default function Register() {
         <div className="container mt-5">
             <div className="card mx-auto" style={{ maxWidth: '400px' }}>
                 <div className="card-body">
-                    <h2 className="card-title text-center mb-4">Registro</h2>
+                    <h2 className="card-title text-center mb-4">Registro de Profissional</h2>
                     <form onSubmit={handleSubmit}>
                         <div className="mb-3">
-                            <label className="form-label">Nome</label>
+                            <label className="form-label">Nome Completo</label>
                             <input
                                 type="text"
                                 className="form-control"
@@ -57,17 +56,10 @@ export default function Register() {
                                 required
                             />
                         </div>
-                        <div className="mb-3">
-                            <label className="form-label">Tipo de Conta</label>
-                            <select className="form-select" value={role} onChange={(e) => setRole(e.target.value)}>
-                                <option value="user">Cliente</option>
-                                <option value="pro">Profissional</option>
-                            </select>
-                        </div>
                         <button type="submit" className="btn btn-success w-100">Registrar</button>
                     </form>
                     <p className="text-center mt-3">
-                        Já tem uma conta? <Link to="/login">Faça login aqui.</Link>
+                        Já tem uma conta? <Link to="/login">Faça login.</Link>
                     </p>
                 </div>
             </div>

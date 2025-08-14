@@ -11,16 +11,15 @@ export default function Login() {
         e.preventDefault();
         try {
             const response = await api.post('/auth/login', { email, password });
-            const { token, user } = response.data;
+            const { token, isProfessional } = response.data;
 
-            localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify(user));
-            setAuthToken(token);
-
-            if (user.role === 'pro') {
+            if (isProfessional) {
+                localStorage.setItem('token', token);
+                setAuthToken(token);
+                alert('Login de profissional bem-sucedido!');
                 navigate('/dashboard');
             } else {
-                navigate('/client-dashboard');
+                alert('Acesso restrito a profissionais.');
             }
         } catch (error) {
             console.error('Erro ao fazer login:', error);
@@ -32,7 +31,7 @@ export default function Login() {
         <div className="container mt-5">
             <div className="card mx-auto" style={{ maxWidth: '400px' }}>
                 <div className="card-body">
-                    <h2 className="card-title text-center mb-4">Login</h2>
+                    <h2 className="card-title text-center mb-4">Login de Profissional</h2>
                     <form onSubmit={handleSubmit}>
                         <div className="mb-3">
                             <label className="form-label">Email</label>
@@ -57,7 +56,7 @@ export default function Login() {
                         <button type="submit" className="btn btn-primary w-100">Entrar</button>
                     </form>
                     <p className="text-center mt-3">
-                        Não tem uma conta? <Link to="/register">Crie uma aqui.</Link>
+                        Não tem uma conta? <Link to="/register">Registre-se.</Link>
                     </p>
                 </div>
             </div>
